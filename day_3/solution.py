@@ -75,27 +75,43 @@ for i, line in enumerate(schematic):
                 end = j + 1
                 while end < len(line) - 1 and re.match(r"\d", line[end + 1]):
                     end += 1
-                adjacent_numbers.append(int(re.match(r"\d+", line[j+1:end+1]).group()))
+                adjacent_numbers.append(
+                    int(re.match(r"\d+", line[j + 1 : end + 1]).group())
+                )
             # Check the previous line
-            if i > 0 and (re.match(r"\d", schematic[i - 1][j]) or (j > 0 and re.match(r"\d", schematic[i - 1][j - 1]))):
-                start = j
-                while start > 0 and re.match(r"\d", schematic[i-1][start-1]):
-                    start -= 1
-                end = j
-                while end < len(schematic[i-1]) - 1 and re.match(r"\d", schematic[i-1][end+1]):
-                    end += 1
-                adjacent_numbers.append(int(re.match(r"\d+", schematic[i-1][start:end+1]).group()))
+            if i > 0:
+                # Identify all numbers in the row above
+                numbers_in_row_above = [
+                    (match.group(), match.start(), match.end() - 1)
+                    for match in re.finditer(r"\d+", schematic[i - 1])
+                ]
+
+                # Check if any of these numbers are adjacent to the current position or its diagonals
+                for number, start, end in numbers_in_row_above:
+                    if (
+                        start <= j <= end
+                        or (j > 0 and start <= j - 1 <= end)
+                        or (j < len(schematic[i]) - 1 and start <= j + 1 <= end)
+                    ):
+                        adjacent_numbers.append(int(number))
             # Check the next line
-            if i < len(schematic) - 1 and (re.match(r"\d", schematic[i+1][j]) or (j > 0 and re.match(r"\d", schematic[i+1][j - 1]))):
-                start = j
-                while start > 0 and re.match(r"\d", schematic[i+1][start-1]):
-                    start -= 1
-                end = j
-                while end < len(schematic[i+1]) - 1 and re.match(r"\d", schematic[i+1][end+1]):
-                    end += 1
-                adjacent_numbers.append(int(re.match(r"\d+", schematic[i+1][start:end+1]).group()))
+            if i < len(schematic) - 1:
+                # Identify all numbers in the row below
+                numbers_in_row_below = [
+                    (match.group(), match.start(), match.end() - 1)
+                    for match in re.finditer(r"\d+", schematic[i + 1])
+                ]
+
+                # Check if any of these numbers are adjacent to the current position or its diagonals
+                for number, start, end in numbers_in_row_below:
+                    if (
+                        start <= j <= end
+                        or (j > 0 and start <= j - 1 <= end)
+                        or (j < len(schematic[i]) - 1 and start <= j + 1 <= end)
+                    ):
+                        adjacent_numbers.append(int(number))
             # If there are at least two numbers adjacent to the symbol, multiply them and add to task_2
-            if len(adjacent_numbers) >= 2:
+            if len(adjacent_numbers) == 2:
                 task_2 += adjacent_numbers[0] * adjacent_numbers[1]
 
 print("Task 2: ", task_2)
