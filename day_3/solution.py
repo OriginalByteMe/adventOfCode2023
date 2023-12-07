@@ -57,27 +57,45 @@ for i, line in enumerate(schematic):
 
 print("Task 1: ", task_1)
 
+# The code is iterating over each character in the `schematic` and checking if the character is equal
+# to "*". If it is, it finds adjacent numbers in the same line, previous line, and next line. If there
+# are at least two adjacent numbers, it multiplies them and adds the result to `task_2`. Finally, it
+# prints the value of `task_2`.
 for i, line in enumerate(schematic):
     for j, char in enumerate(line):
-        if char == '*':
+        if char == "*":
             adjacent_numbers = []
             # Check the same line
-            if j > 0 and re.match(r'\d+', line[j-1]):
-                adjacent_numbers.append(int(re.match(r'\d+', line[j-1:]).group()))
-            if j < len(line) - 1 and re.match(r'\d+', line[j+1]):
-                adjacent_numbers.append(int(re.match(r'\d+', line[j+1:]).group()))
+            if j > 0 and re.match(r"\d", line[j - 1]):
+                start = j - 1
+                while start > 0 and re.match(r"\d", line[start - 1]):
+                    start -= 1
+                adjacent_numbers.append(int(re.match(r"\d+", line[start:j]).group()))
+            if j < len(line) - 1 and re.match(r"\d", line[j + 1]):
+                end = j + 1
+                while end < len(line) - 1 and re.match(r"\d", line[end + 1]):
+                    end += 1
+                adjacent_numbers.append(int(re.match(r"\d+", line[j+1:end+1]).group()))
             # Check the previous line
-            if i > 0:
-                if re.match(r'\d+', schematic[i-1][j:]):
-                    adjacent_numbers.append(int(re.match(r'\d+', schematic[i-1][j:]).group()))
+            if i > 0 and (re.match(r"\d", schematic[i - 1][j]) or (j > 0 and re.match(r"\d", schematic[i - 1][j - 1]))):
+                start = j
+                while start > 0 and re.match(r"\d", schematic[i-1][start-1]):
+                    start -= 1
+                end = j
+                while end < len(schematic[i-1]) - 1 and re.match(r"\d", schematic[i-1][end+1]):
+                    end += 1
+                adjacent_numbers.append(int(re.match(r"\d+", schematic[i-1][start:end+1]).group()))
             # Check the next line
-            if i < len(schematic) - 1:
-                if re.match(r'\d+', schematic[i+1][j:]):
-                    adjacent_numbers.append(int(re.match(r'\d+', schematic[i+1][j:]).group()))
+            if i < len(schematic) - 1 and (re.match(r"\d", schematic[i+1][j]) or (j > 0 and re.match(r"\d", schematic[i+1][j - 1]))):
+                start = j
+                while start > 0 and re.match(r"\d", schematic[i+1][start-1]):
+                    start -= 1
+                end = j
+                while end < len(schematic[i+1]) - 1 and re.match(r"\d", schematic[i+1][end+1]):
+                    end += 1
+                adjacent_numbers.append(int(re.match(r"\d+", schematic[i+1][start:end+1]).group()))
             # If there are at least two numbers adjacent to the symbol, multiply them and add to task_2
-            if len(adjacent_numbers) == 2:
-                print("Found two adjacent numbers: ", adjacent_numbers)
+            if len(adjacent_numbers) >= 2:
                 task_2 += adjacent_numbers[0] * adjacent_numbers[1]
 
 print("Task 2: ", task_2)
-    
